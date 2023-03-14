@@ -1,3 +1,4 @@
+
 """""
 Description: 训练人脸表情识别程序
 """
@@ -17,16 +18,23 @@ from keras.callbacks import ReduceLROnPlateau
 from keras.preprocessing.image import ImageDataGenerator
 from load_and_process import load_fer2013
 from load_and_process import preprocess_input
+from models.cnn import big_XCEPTION
 from models.cnn import mini_XCEPTION
 from sklearn.model_selection import train_test_split
 from keras.utils import plot_model
 from keras.callbacks import TensorBoard #训练可视化
-#from draw import plot_confuse #h混淆矩阵可视化
-#from matplotlib import pyplot as plt #准确率可视化
+from draw import plot_confuse #h混淆矩阵可视化
+from matplotlib import pyplot as plt #准确率可视化
+
+
+from keras.models import load_model
+
+model = load_model('./models/_miniF_XCEPTION.07-0.56.hdf5')
+
 
 # 参数
 batch_size = 32
-num_epochs = 50
+num_epochs = 10
 input_shape = (48, 48, 1)
 validation_split = .2
 verbose = 1
@@ -35,7 +43,6 @@ patience = 50
 base_path = 'models/'
 
 # 构建模型
-model = mini_XCEPTION(input_shape, num_classes)
 # 编译模型，指定优化器，损失函数，度量
 model.compile(optimizer='adam',  # 优化器采用adam
               loss='categorical_crossentropy',  # 多分类的对数损失函数
@@ -58,7 +65,7 @@ reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
                               verbose=1)
 
 # 模型位置及命名
-trained_models_path = base_path + '_minipro_XCEPTION'
+trained_models_path = base_path + '_miniF_XCEPTION'
 model_names = trained_models_path + '.{epoch:02d}-{val_acc:.2f}.hdf5'
 
 # 定义模型权重位置、命名等，该回调函数将在每个epoch后保存模型到filepath
@@ -97,34 +104,4 @@ history = model.fit_generator(data_generator.flow(xtrain, ytrain, batch_size),
                     validation_data=(xtest, ytest))
 
 labels=["anger","disgust","fear","happy","sad","surprise","netural"]
-
 plot_confuse(model,xtest,ytest,labels ,batch_size)
-
-
-"""
-print(history.history.keys())
-plt.clf()
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epochs')
-plt.legend(['train','test'], loc='upper left')
-plt.savefig(base_path+'train_validation_acc.png')
-plt.clf()
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epochs')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig(base_path+'train_validation_loss.png')
-"""
-
-"""
-model_json=model.to_json()
-with open(saveDir+'structure.json','w') as f:
-    f.write(model_json)
-model.save_weights(saveDir+'weight.h5')
-print('Model Save Success.........................................')
-"""

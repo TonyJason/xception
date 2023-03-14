@@ -18,7 +18,7 @@ def load_fer2013():
             faces.append(face.astype('float32'))
         faces = np.asarray(faces)
         faces = np.expand_dims(faces, -1)       #处理好的数组数据存入faces和emotion中，以被函数调用
-        emotions = pd.get_dummies(data['emotion']).values()
+        emotions = pd.get_dummies(data['emotion']).as_matrix()
         return faces, emotions
 
 def preprocess_input(x, v2=True): #图像预处理
